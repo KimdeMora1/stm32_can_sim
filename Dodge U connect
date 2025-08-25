@@ -1,0 +1,12 @@
+
+
+ID 122, DLC 4, 04 02 00 00  ,100ms
+ID 2FA, DLC 8, 00 01 00 48 00 00 00 00  ,100ms
+ID 3D3, DLC 8, 55 55 55 55 55 55 55 55  ,100ms
+ID 3E8, DLC 8, 00 XX XX XX XX XX XX XX  ,100ms
+ID 3E8, DLC 8, 01 XX XX XX XX XX XX XX  ,100ms
+ID 3E8, DLC 8, 02 XX XX XX 00 00 00 00  ,100ms
+//XX - car vin
+..... can ihs 125kbit/s
+
+from: https://mhhauto.com/Thread-SOLVED-UCONNECT-8-4-on-bench
