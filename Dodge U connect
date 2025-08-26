@@ -1,12 +1,51 @@
+//Dodge U Connect canbus wake up message testing. 
 
+#include <arduino.h>
+#include <eXoCAN.h>
+#define bluePillLED PC13
 
-ID 122, DLC 4, 04 02 00 00  ,100ms
-ID 2FA, DLC 8, 00 01 00 48 00 00 00 00  ,100ms
-ID 3D3, DLC 8, 55 55 55 55 55 55 55 55  ,100ms
-ID 3E8, DLC 8, 00 XX XX XX XX XX XX XX  ,100ms
-ID 3E8, DLC 8, 01 XX XX XX XX XX XX XX  ,100ms
-ID 3E8, DLC 8, 02 XX XX XX 00 00 00 00  ,100ms
-//XX - car vin
-..... can ihs 125kbit/s
+struct can_messages {
+ int can_id;
+ uint8_t can_message[8];
+};
 
-from: https://mhhauto.com/Thread-SOLVED-UCONNECT-8-4-on-bench
+static can_messages cMessages[6] = { 
+  {{0x122},{0x04, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},  // Wakeup message 1
+  {{0x2FA},{0x00, 0x01, 0x00, 0x48, 0x00, 0x00, 0x00, 0x00}},  // Wakeup message 2
+  {{0x3D3},{0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55, 0x55}},  // Wakeup message 3
+  {{0x3E8},{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},  // Wakeup message 4 (VIN placeholder set to 0x00)
+  {{0x3E8},{0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},  // Wakeup message 5 (VIN placeholder set to 0x00)
+  {{0x3E8},{0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}}   // Wakeup message 6 (VIN placeholder set to 0x00)
+};
+
+uint8_t txDataLen = 8;
+uint32_t txDly = 100; // mSec
+
+// 11b IDs, 125k bit rate, tja1040, portA pins 11,12
+eXoCAN can(STD_ID_LEN, BR125K, PORTA_11_12_XCVR); 
+
+void setup()
+{ 
+  pinMode(bluePillLED, OUTPUT);
+}
+
+uint32_t last = 0;
+int cMSG = 0;
+
+void loop()
+{    
+  if (millis() / txDly != last)     //executes every txDly ms  
+  {  
+    last = millis() / txDly;
+
+    can.transmit(cMessages[cMSG].can_id, cMessages[cMSG].can_message, txDataLen);  
+   
+    if (cMSG<(sizeof(cMessages) / sizeof(cMessages[0]))) {
+      cMSG++;          
+    }     
+    else {       
+      cMSG=0;    
+    }
+    digitalToggle(bluePillLED); //blinky lights are cool
+  }
+}
